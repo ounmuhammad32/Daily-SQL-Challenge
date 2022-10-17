@@ -1,0 +1,443 @@
+SQL LeetCode 
+
+Q#1:- Easy
+Table: Person
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| personId    | int     |
+| lastName    | varchar |
+| firstName   | varchar |
++-------------+---------+
+personId is the primary key column for this table.
+This table contains information about the ID of some persons and their first and last names.
+ 
+
+Table: Address
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| addressId   | int     |
+| personId    | int     |
+| city        | varchar |
+| state       | varchar |
++-------------+---------+
+addressId is the primary key column for this table.
+Each row of this table contains information about the city and state of one person with ID = PersonId.
+ 
+
+Write an SQL query to report the first name, last name, city, and state of each person in the Person table. If the address of a personId is not present in the Address table, report null instead.
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+
+
+Input: 
+Person table:
++----------+----------+-----------+
+| personId | lastName | firstName |
++----------+----------+-----------+
+| 1        | Wang     | Allen     |
+| 2        | Alice    | Bob       |
++----------+----------+-----------+
+Address table:
++-----------+----------+---------------+------------+
+| addressId | personId | city          | state      |
++-----------+----------+---------------+------------+
+| 1         | 2        | New York City | New York   |
+| 2         | 3        | Leetcode      | California |
++-----------+----------+---------------+------------+
+Output: 
++-----------+----------+---------------+----------+
+| firstName | lastName | city          | state    |
++-----------+----------+---------------+----------+
+| Allen     | Wang     | Null          | Null     |
+| Bob       | Alice    | New York City | New York |
++-----------+----------+---------------+----------+
+Explanation: 
+There is no address in the address table for the personId = 1 so we return null in their city and state.
+addressId = 1 contains information about the address of personId = 2.
+
+ANS:- Select 
+p.firstname, 
+p.lastname, 
+a.city, 
+a.state 
+from Person p
+left join Address a
+on p.personId = a.personId
+
+
+Q#2:- Easy
+Table: Departments
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| name          | varchar |
++---------------+---------+
+id is the primary key of this table.
+The table has information about the id of each department of a university.
+ 
+
+Table: Students
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| name          | varchar |
+| department_id | int     |
++---------------+---------+
+id is the primary key of this table.
+The table has information about the id of each student at a university and the id of the department he/she studies at.
+ 
+
+Write an SQL query to find the id and the name of all students who are enrolled in departments that no longer exist.
+
+Return the result table in any order.
+
+The query result format is in the following example.
+Input: 
+Departments table:
++------+--------------------------+
+| id   | name                     |
++------+--------------------------+
+| 1    | Electrical Engineering   |
+| 7    | Computer Engineering     |
+| 13   | Bussiness Administration |
++------+--------------------------+
+Students table:
++------+----------+---------------+
+| id   | name     | department_id |
++------+----------+---------------+
+| 23   | Alice    | 1             |
+| 1    | Bob      | 7             |
+| 5    | Jennifer | 13            |
+| 2    | John     | 14            |
+| 4    | Jasmine  | 77            |
+| 3    | Steve    | 74            |
+| 6    | Luis     | 1             |
+| 8    | Jonathan | 7             |
+| 7    | Daiana   | 33            |
+| 11   | Madelynn | 1             |
++------+----------+---------------+
+Output: 
++------+----------+
+| id   | name     |
++------+----------+
+| 2    | John     |
+| 7    | Daiana   |
+| 4    | Jasmine  |
+| 3    | Steve    |
++------+----------+
+Explanation: 
+John, Daiana, Steve, and Jasmine are enrolled in departments 14, 33, 74, and 77 respectively. department 14, 33, 74, and 77 do not exist in the Departments table.
+
+ANS:-select 
+id , name 
+from students 
+where department_id not in (select id from departments)
+
+Q3:- Medium
+Table: Relations
+
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| user_id     | int  |
+| follower_id | int  |
++-------------+------+
+(user_id, follower_id) is the primary key for this table.
+Each row of this table indicates that the user with ID follower_id is following the user with ID user_id.
+ 
+
+Write an SQL query to find all the pairs of users with the maximum number of common followers. In other words, if the maximum number of common followers between any two users is maxCommon, then you have to return all pairs of users that have maxCommon common followers.
+
+The result table should contain the pairs user1_id and user2_id where user1_id < user2_id.
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+ 
+
+Example 1:
+
+Input: 
+Relations table:
++---------+-------------+
+| user_id | follower_id |
++---------+-------------+
+| 1       | 3           |
+| 2       | 3           |
+| 7       | 3           |
+| 1       | 4           |
+| 2       | 4           |
+| 7       | 4           |
+| 1       | 5           |
+| 2       | 6           |
+| 7       | 5           |
++---------+-------------+
+Output: 
++----------+----------+
+| user1_id | user2_id |
++----------+----------+
+| 1        | 7        |
++----------+----------+
+Explanation: 
+Users 1 and 2 have two common followers (3 and 4).
+Users 1 and 7 have three common followers (3, 4, and 5).
+Users 2 and 7 have two common followers (3 and 4).
+Since the maximum number of common followers between any two users is 3, we return all pairs of users with three common followers, which is only the pair (1, 7). We return the pair as (1, 7), not as (7, 1).
+Note that we do not have any information about the users that follow users 3, 4, and 5, so we consider them to have 0 followers.
+
+Ans:- with cte as(
+select a.user_id as user1_id,
+b.user_id as user2_id,
+count(a.follower_id) as followers
+from Relations a
+inner join Relations b
+on a.user_id < b.user_id and a.follower_id = b.follower_id
+group by a.user_id, b.user_id
+)
+select user1_id,
+user2_id
+from cte
+where followers = (select max(followers) from cte)
+
+Q#4:- Medium
+Person:
+
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| id             | int     |
+| name           | varchar |
+| phone_number   | varchar |
++----------------+---------+
+id is the primary key for this table.
+Each row of this table contains the name of a person and their phone number.
+Phone number will be in the form 'xxx-yyyyyyy' where xxx is the country code (3 characters) and yyyyyyy is the phone number (7 characters) where x and y are digits. Both can contain leading zeros.
+ 
+
+Table Country:
+
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| name           | varchar |
+| country_code   | varchar |
++----------------+---------+
+country_code is the primary key for this table.
+Each row of this table contains the country name and its code. country_code will be in the form 'xxx' where x is digits.
+ 
+
+Table Calls:
+
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| caller_id   | int  |
+| callee_id   | int  |
+| duration    | int  |
++-------------+------+
+There is no primary key for this table, it may contain duplicates.
+Each row of this table contains the caller id, callee id and the duration of the call in minutes. caller_id != callee_id
+ 
+
+A telecommunications company wants to invest in new countries. The company intends to invest in the countries where the average call duration of the calls in this country is strictly greater than the global average call duration.
+
+Write an SQL query to find the countries where this company can invest.
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+ 
+
+Example 1:
+
+Input: 
+Person table:
++----+----------+--------------+
+| id | name     | phone_number |
++----+----------+--------------+
+| 3  | Jonathan | 051-1234567  |
+| 12 | Elvis    | 051-7654321  |
+| 1  | Moncef   | 212-1234567  |
+| 2  | Maroua   | 212-6523651  |
+| 7  | Meir     | 972-1234567  |
+| 9  | Rachel   | 972-0011100  |
++----+----------+--------------+
+Country table:
++----------+--------------+
+| name     | country_code |
++----------+--------------+
+| Peru     | 051          |
+| Israel   | 972          |
+| Morocco  | 212          |
+| Germany  | 049          |
+| Ethiopia | 251          |
++----------+--------------+
+Calls table:
++-----------+-----------+----------+
+| caller_id | callee_id | duration |
++-----------+-----------+----------+
+| 1         | 9         | 33       |
+| 2         | 9         | 4        |
+| 1         | 2         | 59       |
+| 3         | 12        | 102      |
+| 3         | 12        | 330      |
+| 12        | 3         | 5        |
+| 7         | 9         | 13       |
+| 7         | 1         | 3        |
+| 9         | 7         | 1        |
+| 1         | 7         | 7        |
++-----------+-----------+----------+
+Output: 
++----------+
+| country  |
++----------+
+| Peru     |
++----------+
+Explanation: 
+The average call duration for Peru is (102 + 102 + 330 + 330 + 5 + 5) / 6 = 145.666667
+The average call duration for Israel is (33 + 4 + 13 + 13 + 3 + 1 + 1 + 7) / 8 = 9.37500
+The average call duration for Morocco is (33 + 4 + 59 + 59 + 3 + 7) / 6 = 27.5000 
+Global call duration average = (2 * (33 + 4 + 59 + 102 + 330 + 5 + 13 + 3 + 1 + 7)) / 20 = 55.70000
+Since Peru is the only country where the average call duration is greater than the global average, it is the only recommended country.
+
+ANS:- SELECT Country.name AS country
+FROM Person
+JOIN Country ON LEFT(phone_number, 3) = country_code
+JOIN Calls ON Person.id IN (Calls.caller_id, Calls.callee_id)
+GROUP BY Country.name
+HAVING AVG(duration) > (SELECT AVG(duration) FROM calls)
+
+Q#5:- Medium
+Table: Members
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| member_id   | int     |
+| name        | varchar |
++-------------+---------+
+member_id is the primary key column for this table.
+Each row of this table indicates the name and the ID of a member.
+ 
+
+Table: Visits
+
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| visit_id    | int  |
+| member_id   | int  |
+| visit_date  | date |
++-------------+------+
+visit_id is the primary key column for this table.
+member_id is a foreign key to member_id from the Members table.
+Each row of this table contains information about the date of a visit to the store and the member who visited it.
+ 
+
+Table: Purchases
+
++----------------+------+
+| Column Name    | Type |
++----------------+------+
+| visit_id       | int  |
+| charged_amount | int  |
++----------------+------+
+visit_id is the primary key column for this table.
+visit_id is a foreign key to visit_id from the Visits table.
+Each row of this table contains information about the amount charged in a visit to the store.
+ 
+
+A store wants to categorize its members. There are three tiers:
+
+"Diamond": if the conversion rate is greater than or equal to 80.
+"Gold": if the conversion rate is greater than or equal to 50 and less than 80.
+"Silver": if the conversion rate is less than 50.
+"Bronze": if the member never visited the store.
+The conversion rate of a member is (100 * total number of purchases for the member) / total number of visits for the member.
+
+Write an SQL query to report the id, the name, and the category of each member.
+
+Return the result table in any order.
+
+The query result format is in the following example.
+
+ 
+
+Example 1:
+
+Input: 
+Members table:
++-----------+---------+
+| member_id | name    |
++-----------+---------+
+| 9         | Alice   |
+| 11        | Bob     |
+| 3         | Winston |
+| 8         | Hercy   |
+| 1         | Narihan |
++-----------+---------+
+Visits table:
++----------+-----------+------------+
+| visit_id | member_id | visit_date |
++----------+-----------+------------+
+| 22       | 11        | 2021-10-28 |
+| 16       | 11        | 2021-01-12 |
+| 18       | 9         | 2021-12-10 |
+| 19       | 3         | 2021-10-19 |
+| 12       | 11        | 2021-03-01 |
+| 17       | 8         | 2021-05-07 |
+| 21       | 9         | 2021-05-12 |
++----------+-----------+------------+
+Purchases table:
++----------+----------------+
+| visit_id | charged_amount |
++----------+----------------+
+| 12       | 2000           |
+| 18       | 9000           |
+| 17       | 7000           |
++----------+----------------+
+Output: 
++-----------+---------+----------+
+| member_id | name    | category |
++-----------+---------+----------+
+| 1         | Narihan | Bronze   |
+| 3         | Winston | Silver   |
+| 8         | Hercy   | Diamond  |
+| 9         | Alice   | Gold     |
+| 11        | Bob     | Silver   |
++-----------+---------+----------+
+Explanation: 
+- User Narihan with id = 1 did not make any visits to the store. She gets a Bronze category.
+- User Winston with id = 3 visited the store one time and did not purchase anything. The conversion rate = (100 * 0) / 1 = 0. He gets a Silver category.
+- User Hercy with id = 8 visited the store one time and purchased one time. The conversion rate = (100 * 1) / 1 = 1. He gets a Diamond category.
+- User Alice with id = 9 visited the store two times and purchased one time. The conversion rate = (100 * 1) / 2 = 50. She gets a Gold category.
+- User Bob with id = 11 visited the store three times and purchased one time. The conversion rate = (100 * 1) / 3 = 33.33. He gets a Silver category.
+
+ANS:-
+SELECT 
+  M.member_id, 
+  name, 
+  CASE 
+    WHEN COUNT(V.visit_id) = 0 THEN 'Bronze'
+    WHEN ISNULL(COUNT(DISTINCT P.visit_id),0)*100/COUNT(V.visit_id) >= 80 THEN 'Diamond'
+    WHEN ISNULL(COUNT(DISTINCT P.visit_id),0)*100/COUNT(V.visit_id) >= 50 THEN 'Gold'
+    ELSE 'Silver'
+  END AS category
+FROM Members M 
+LEFT JOIN Visits V ON M.member_id = V.member_id
+LEFT JOIN Purchases P ON V.visit_id = P.visit_id
+GROUP BY M.member_id, name
+ORDER BY 1 ASC
